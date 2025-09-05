@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="card">
+<form method="post" action="{{ url_for('routes.create_book') }}" class="grid">
+<input name="title" placeholder="Book title" required maxlength="160">
+<input name="author" placeholder="Author" required maxlength="120">
+<input name="notes" placeholder="Optional notes">
+<button type="submit">Add</button>
+</form>
+</section>
+
+
+<nav class="tabs">
+<a href="{{ url_for('routes.index', status='all') }}" class="{{ 'active' if status=='all' else '' }}">All</a>
+<a href="{{ url_for('routes.index', status='want') }}" class="{{ 'active' if status=='want' else '' }}">Want to Read</a>
+<a href="{{ url_for('routes.index', status='reading') }}" class="{{ 'active' if status=='reading' else '' }}">Reading</a>
+<a href="{{ url_for('routes.index', status='finished') }}" class="{{ 'active' if status=='finished' else '' }}">Finished</a>
+</nav>
+
+
+{% if not books %}
+<p class="muted">No books yet. Add one above!</p>
+{% else %}
+<ul class="tasks">
+{% for b in books %}
+<li class="task">
+<div class="content">
+<strong>{{ b.title }}</strong> by {{ b.author }}
+{% if b.notes %}<div class="notes">{{ b.notes }}</div>{% endif %}
+<small>Status: {{ b.status }}</small>
+</div>
+<div class="actions">
+<form method="post" action="{{ url_for('routes.change_status', book_id=b.id) }}">
+<select name="status" onchange="this.form.submit()">
+<option value="want" {% if b.status=='want' %}selected{% endif %}>Want to Read</option>
+<option value="reading" {% if b.status=='reading' %}selected{% endif %}>Reading</option>
+<option value="finished" {% if b.status=='finished' %}selected{% endif %}>Finished</option>
+</select>
+</form>
+<a href="{{ url_for('routes.edit_book', book_id=b.id) }}">Edit</a>
+<form method="post" action="{{ url_for('routes.delete_book', book_id=b.id) }}" onsubmit="return confirm('Delete book?')">
+<button class="danger">Delete</button>
+</form>
+</div>
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
